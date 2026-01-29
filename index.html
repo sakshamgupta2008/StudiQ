@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Student Productivity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #FDFBF7;
+            --warm-white: #FAF8F3;
+            --sand: #E8E4DC;
+            --stone: #C7C1B5;
+            --slate: #6B6558;
+            --charcoal: #2D2A25;
+            --accent-blue: #5B7C9A;
+            --accent-green: #7A9B76;
+            --accent-coral: #D4856A;
+            --accent-yellow: #E5B05C;
+            --shadow-sm: 0 1px 2px rgba(45, 42, 37, 0.04);
+            --shadow-md: 0 4px 12px rgba(45, 42, 37, 0.08);
+            --shadow-lg: 0 8px 24px rgba(45, 42, 37, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1, h2, h3 {
+            font-family: 'Instrument Serif', serif;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; }
+        h3 { font-size: 1.5rem; }
+
+        /* Authentication Screens */
+        .auth-container {
+            display: none;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--warm-white) 0%, var(--sand) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-container.active {
+            display: flex;
+        }
+
+        .auth-bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            opacity: 0.05;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .auth-bg-circle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -100px;
+            right: -100px;
+        }
+
+        .auth-bg-circle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+
+        .auth-card {
+            background: white;
+            padding: 3rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo h1 {
+            font-size: 2rem;
+            color: var(--charcoal);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-logo p {
+            color: var(--slate);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--slate);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1.5px solid var(--sand);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--warm-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(91, 124, 154, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+            background: var(--charcoal);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: var(--slate);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--slate);
+            font-size: 0.9rem;
+        }
+
+        .auth-link a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .auth-link a:hover {
+            color: var(--charcoal);
+        }
+
+        /* App Layout */
+        .app-container {
+            display: none;
+            height: 100vh;
+        }
+
+        .app-container.active {
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid var(--sand);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-logo {
+            padding: 0 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 1.75rem;
+            color: var(--charcoal);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 0.875rem 1.5rem;
+            margin: 0.25rem 0.75rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--slate);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: var(--warm-white);
+            color: var(--charcoal);
+        }
+
+        .nav-item.active {
+            background: var(--charcoal);
+            color: white;
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 60%;
+            background: var(--accent-blue);
+            border-radius: 0 3px 3px 0;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-footer {
+            padding: 0 1.5rem;
+            margin-top: 1rem;
+            border-top: 1px solid var(--sand);
+            padding-top: 1rem;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background: var(--warm-white);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-coral));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--charcoal);
+        }
+
+        .user-email {
+            font-size: 0.75rem;
+            color: var(--slate);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            background: var(--cream);
+        }
+
+        .content-header {
+            padding: 2rem 3rem;
+            background: white;
+            border-bottom: 1px solid var(--sand);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-subtitle {
+            color: var(--slate);
+            font-size: 0.95rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn-secondary {
+            padding: 0.625rem 1.25rem;
+            background: white;
+            border: 1.5px solid var(--sand);
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--charcoal);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--stone);
+            background: var(--warm-white);
+        }
+
+        .btn-accent {
+            padding: 0.625rem 1.25rem;
+            background: var(--charcoal);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-accent:hover {
+            background: var(--slate);
+            transform: translateY(-1px);
+        }
+
+        .content-body {
+            padding: 2rem 3rem;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Dashboard */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--sand);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--slate);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.25rem;
+            color: var(--charcoal);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-detail {
+            font-size: 0.85rem;
+            color: var(--slate);
+        }
+
+        .today-overview {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--sand);
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            color: var(--charcoal);
+        }
+
+        .quick-add {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Tasks */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .task-item {
+            background: var(--warm-white);
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            border: 1.5px solid transparent;
+        }
+
+        .task-item:hover {
+            background: white;
+            border-color: var(--sand);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--stone);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .task-checkbox:hover {
+            border-color: var(--accent-green);
+        }
+
+        .task-checkbox.checked {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            color: var(--charcoal);
+            margin-bottom: 0.25rem;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--slate);
+            opacity: 0.6;
+        }
+
+        .task-meta {
+            font-size: 0.8rem;
+            color: var(--slate);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .task-link {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.8rem;
+            padding: 0.25rem 0.625rem;
+            background: rgba(91, 124, 154, 0.1);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .task-link:hover {
+            background: rgba(91, 124, 154, 0.2);
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .task-item:hover .task-actions {
+            opacity: 1;
+        }
+
+        .task-btn {
+            padding: 0.375rem 0.625rem;
+            background: transparent;
+            border: 1px solid var(--sand);
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--slate);
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .task-btn:hover {
+            background: var(--warm-white);
+            border-color: var(--stone);
+        }
+
+        /* Calendar */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .calendar-month {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.75rem;
+            margin: 0 1.5rem;
+        }
+
+        .calendar-grid {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--sand);
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--slate);
+            padding: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            padding: 0.75rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1.5px solid transparent;
+            background: var(--warm-white);
+        }
+
+        .calendar-day:hover {
+            background: white;
+            border-color: var(--sand);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .calendar-day.today {
+            background: var(--charcoal);
+            color: white;
+        }
+
+        .calendar-day.has-events {
+            border-color: var(--accent-blue);
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .day-events {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .day-event-dot {
+            width: 100%;
+            height: 3px;
+            border-radius: 2px;
+            background: var(--accent-blue);
+        }
+
+        .day-event-dot.lecture {
+            background: var(--accent-coral);
+        }
+
+        .day-event-dot.task {
+            background: var(--accent-green);
+        }
+
+        /* Lectures */
+        .lecture-timetable {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--sand);
+        }
+
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: auto repeat(5, 1fr);
+            gap: 1px;
+            background: var(--sand);
+            border: 1px solid var(--sand);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .timetable-header {
+            background: var(--warm-white);
+            padding: 1rem;
+            font-weight: 600;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--charcoal);
+        }
+
+        .timetable-time {
+            background: var(--warm-white);
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--slate);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .timetable-slot {
+            background: white;
+            padding: 1rem;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .timetable-slot:hover {
+            background: var(--warm-white);
+        }
+
+        .lecture-card {
+            background: linear-gradient(135deg, var(--accent-coral), #E09578);
+            padding: 0.875rem;
+            border-radius: 8px;
+            color: white;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .lecture-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .lecture-location {
+            font-size: 0.75rem;
+            opacity: 0.9;
+        }
+
+        /* Reading Section */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--sand);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+
+        .book-cover {
+            height: 200px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-coral));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .book-info {
+            padding: 1.5rem;
+        }
+
+        .book-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+        }
+
+        .book-author {
+            color: var(--slate);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .book-progress {
+            margin-bottom: 0.75rem;
+        }
+
+        .progress-label {
+            font-size: 0.8rem;
+            color: var(--slate);
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--sand);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent-green);
+            transition: width 0.3s ease;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--slate);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(45, 42, 37, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            animation: slideUp 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-subtitle {
+            color: var(--slate);
+            font-size: 0.95rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .btn-cancel {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1.5px solid var(--sand);
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 500;
+            color: var(--charcoal);
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel:hover {
+            background: var(--warm-white);
+            border-color: var(--stone);
+        }
+
+        .btn-submit {
+            padding: 0.75rem 1.5rem;
+            background: var(--charcoal);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background: var(--slate);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+        }
+
+        .empty-description {
+            color: var(--slate);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 220px;
+            }
+
+            .content-header, .content-body {
+                padding: 1.5rem 2rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                z-index: 100;
+                transition: left 0.3s ease;
+            }
+
+            .sidebar.mobile-open {
+                left: 0;
+            }
+
+            .content-header {
+                padding: 1.25rem 1.5rem;
+            }
+
+            .content-body {
+                padding: 1.5rem;
+            }
+
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.5rem; }
+
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="auth-container active" id="loginScreen">
+        <div class="auth-bg-circle"></div>
+        <div class="auth-bg-circle"></div>
+        
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h1>StudyFlow</h1>
+                <p>Focus on what matters</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="you@university.edu" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Sign In</button>
+            </form>
+            
+            <div class="auth-link">
+                Don't have an account? <a href="#" onclick="showSignup()">Sign up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Screen -->
+    <div class="auth-container" id="signupScreen">
+        <div class="auth-bg-circle"></div>
+        <div class="auth-bg-circle"></div>
+        
+        <div class="auth-card">
+            <div class="auth-logo">
+                <h1>StudyFlow</h1>
+                <p>Create your account</p>
+            </div>
+            
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" class="form-input" placeholder="Alex Johnson" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupEmail">Email</label>
+                    <input type="email" id="signupEmail" class="form-input" placeholder="you@university.edu" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" class="form-input" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+            
+            <div class="auth-link">
+                Already have an account? <a href="#" onclick="showLogin()">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>StudyFlow</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-item active" onclick="showScreen('dashboard')">
+                    <div class="nav-icon">📊</div>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('tasks')">
+                    <div class="nav-icon">✓</div>
+                    <span>Tasks</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('calendar')">
+                    <div class="nav-icon">📅</div>
+                    <span>Calendar</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('lectures')">
+                    <div class="nav-icon">🎓</div>
+                    <span>Lectures</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('reading')">
+                    <div class="nav-icon">📚</div>
+                    <span>Reading</span>
+                </div>
+                <div class="nav-item" onclick="showScreen('settings')">
+                    <div class="nav-icon">⚙️</div>
+                    <span>Settings</span>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar">AJ</div>
+                    <div class="user-info">
+                        <div class="user-name">Alex Johnson</div>
+                        <div class="user-email">CS Student</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Screen -->
+            <div class="screen active" id="dashboardScreen">
+                <div class="content-header">
+                    <div class="header-top">
+                        <div class="header-title">
+                            <h1 id="dashboardGreeting">Good morning</h1>
+                            <p class="header-subtitle" id="dashboardDate"></p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-accent" onclick="openModal('addTask')">+ Add Task</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="dashboard-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Tasks Today</div>
+                            <div class="stat-value">6</div>
+                            <div class="stat-detail">3 completed</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-label">This Week</div>
+                            <div class="stat-value">4</div>
+                            <div class="stat-detail">lectures scheduled</div>
+                        </div>
+                    </div>
+                    
+                    <div class="today-overview">
+                        <div class="section-header">
+                            <h3 class="section-title">Today's Tasks</h3>
+                        </div>
+                        
+                        <div class="task-list">
+                            <!-- Tasks will be rendered dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="today-overview">
+                        <div class="section-header">
+                            <h3 class="section-title">Upcoming Lectures</h3>
+                        </div>
+                        
+                        <div class="task-list">
+                            <!-- Lectures will be rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Screen -->
+            <div class="screen" id="tasksScreen">
+                <div class="content-header">
+                    <div class="header-top">
+                        <div class="header-title">
+                            <h1>All Tasks</h1>
+                            <p class="header-subtitle">Organize your work</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-accent" onclick="openModal('addTask')">+ New Task</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="today-overview">
+                        <div class="section-header">
+                            <h3 class="section-title">Today</h3>
+                        </div>
+                        
+                        <div class="task-list">
+                            <!-- Tasks will be rendered dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="today-overview">
+                        <div class="section-header">
+                            <h3 class="section-title">Tomorrow</h3>
+                        </div>
+                        
+                        <div class="task-list">
+                            <!-- Tasks will be rendered dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calendar Screen -->
+            <div class="screen" id="calendarScreen">
+                <div class="content-header">
+                    <div class="header-top">
+                        <div class="header-title">
+                            <h1>Calendar</h1>
+                            <p class="header-subtitle">Plan your month</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="btn-secondary">← Prev</button>
+                            <h2 class="calendar-month">January 2026</h2>
+                            <button class="btn-secondary">Next →</button>
+                        </div>
+                        <button class="btn-accent">+ Add Event</button>
+                    </div>
+                    
+                    <div class="calendar-grid">
+                        <div class="calendar-weekdays">
+                            <div class="calendar-weekday">Mon</div>
+                            <div class="calendar-weekday">Tue</div>
+                            <div class="calendar-weekday">Wed</div>
+                            <div class="calendar-weekday">Thu</div>
+                            <div class="calendar-weekday">Fri</div>
+                            <div class="calendar-weekday">Sat</div>
+                            <div class="calendar-weekday">Sun</div>
+                        </div>
+                        
+                        <div class="calendar-days">
+                            <div class="calendar-day"><div class="day-number">1</div></div>
+                            <div class="calendar-day"><div class="day-number">2</div></div>
+                            <div class="calendar-day has-events">
+                                <div class="day-number">3</div>
+                                <div class="day-events">
+                                    <div class="day-event-dot lecture"></div>
+                                </div>
+                            </div>
+                            <div class="calendar-day"><div class="day-number">4</div></div>
+                            <div class="calendar-day has-events">
+                                <div class="day-number">5</div>
+                                <div class="day-events">
+                                    <div class="day-event-dot task"></div>
+                                    <div class="day-event-dot lecture"></div>
+                                </div>
+                            </div>
+                            <div class="calendar-day"><div class="day-number">6</div></div>
+                            <div class="calendar-day"><div class="day-number">7</div></div>
+                            
+                            <div class="calendar-day"><div class="day-number">8</div></div>
+                            <div class="calendar-day"><div class="day-number">9</div></div>
+                            <div class="calendar-day has-events">
+                                <div class="day-number">10</div>
+                                <div class="day-events">
+                                    <div class="day-event-dot lecture"></div>
+                                </div>
+                            </div>
+                            <div class="calendar-day"><div class="day-number">11</div></div>
+                            <div class="calendar-day"><div class="day-number">12</div></div>
+                            <div class="calendar-day"><div class="day-number">13</div></div>
+                            <div class="calendar-day"><div class="day-number">14</div></div>
+                            
+                            <div class="calendar-day"><div class="day-number">15</div></div>
+                            <div class="calendar-day"><div class="day-number">16</div></div>
+                            <div class="calendar-day"><div class="day-number">17</div></div>
+                            <div class="calendar-day"><div class="day-number">18</div></div>
+                            <div class="calendar-day"><div class="day-number">19</div></div>
+                            <div class="calendar-day"><div class="day-number">20</div></div>
+                            <div class="calendar-day"><div class="day-number">21</div></div>
+                            
+                            <div class="calendar-day"><div class="day-number">22</div></div>
+                            <div class="calendar-day"><div class="day-number">23</div></div>
+                            <div class="calendar-day"><div class="day-number">24</div></div>
+                            <div class="calendar-day"><div class="day-number">25</div></div>
+                            <div class="calendar-day"><div class="day-number">26</div></div>
+                            <div class="calendar-day"><div class="day-number">27</div></div>
+                            <div class="calendar-day"><div class="day-number">28</div></div>
+                            
+                            <div class="calendar-day"><div class="day-number">29</div></div>
+                            <div class="calendar-day today"><div class="day-number">30</div></div>
+                            <div class="calendar-day"><div class="day-number">31</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lectures Screen -->
+            <div class="screen" id="lecturesScreen">
+                <div class="content-header">
+                    <div class="header-top">
+                        <div class="header-title">
+                            <h1>Weekly Timetable</h1>
+                            <p class="header-subtitle">Your lecture schedule</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-accent" onclick="openModal('addLecture')">+ Add Lecture</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="lecture-timetable">
+                        <div class="timetable-grid">
+                            <div class="timetable-header">Time</div>
+                            <div class="timetable-header">Monday</div>
+                            <div class="timetable-header">Tuesday</div>
+                            <div class="timetable-header">Wednesday</div>
+                            <div class="timetable-header">Thursday</div>
+                            <div class="timetable-header">Friday</div>
+                            
+                            <div class="timetable-time">9:00 AM</div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            
+                            <div class="timetable-time">10:00 AM</div>
+                            <div class="timetable-slot">
+                                <div class="lecture-card">
+                                    <div class="lecture-name">Advanced Algorithms</div>
+                                    <div class="lecture-location">Room 304</div>
+                                </div>
+                            </div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot">
+                                <div class="lecture-card">
+                                    <div class="lecture-name">Advanced Algorithms</div>
+                                    <div class="lecture-location">Room 304</div>
+                                </div>
+                            </div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            
+                            <div class="timetable-time">11:00 AM</div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            
+                            <div class="timetable-time">2:00 PM</div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot">
+                                <div class="lecture-card" style="background: linear-gradient(135deg, var(--accent-blue), #6D8EAA);">
+                                    <div class="lecture-name">Database Systems</div>
+                                    <div class="lecture-location">Online</div>
+                                </div>
+                            </div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot">
+                                <div class="lecture-card" style="background: linear-gradient(135deg, var(--accent-blue), #6D8EAA);">
+                                    <div class="lecture-name">Database Systems</div>
+                                    <div class="lecture-location">Online</div>
+                                </div>
+                            </div>
+                            <div class="timetable-slot"></div>
+                            
+                            <div class="timetable-time">3:00 PM</div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot"></div>
+                            <div class="timetable-slot">
+                                <div class="lecture-card" style="background: linear-gradient(135deg, var(--accent-green), #8AAC86);">
+                                    <div class="lecture-name">Web Development</div>
+                                    <div class="lecture-location">Lab 201</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reading Screen -->
+            <div class="screen" id="readingScreen">
+                <div class="content-header">
+                    <div class="header-top">
+                        <div class="header-title">
+                            <h1>Reading List</h1>
+                            <p class="header-subtitle">Track your reading progress</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-accent" onclick="openModal('addBook')">+ Add Book</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="books-grid">
+                        <div class="book-card">
+                            <div class="book-cover">
+                                Introduction to Algorithms
+                            </div>
+                            <div class="book-info">
+                                <div class="book-title">Introduction to Algorithms</div>
+                                <div class="book-author">Thomas H. Cormen</div>
+                                
+                                <div class="book-progress">
+                                    <div class="progress-label">
+                                        <span>Progress</span>
+                                        <span>45%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 45%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="book-meta">
+                                    <span>12 notes</span>
+                                    <span>CS 301</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="book-card">
+                            <div class="book-cover" style="background: linear-gradient(135deg, var(--accent-green), var(--accent-yellow));">
+                                Database System Concepts
+                            </div>
+                            <div class="book-info">
+                                <div class="book-title">Database System Concepts</div>
+                                <div class="book-author">Abraham Silberschatz</div>
+                                
+                                <div class="book-progress">
+                                    <div class="progress-label">
+                                        <span>Progress</span>
+                                        <span>78%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 78%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="book-meta">
+                                    <span>8 notes</span>
+                                    <span>CS 302</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="book-card">
+                            <div class="book-cover" style="background: linear-gradient(135deg, var(--accent-yellow), var(--accent-coral));">
+                                Clean Code
+                            </div>
+                            <div class="book-info">
+                                <div class="book-title">Clean Code</div>
+                                <div class="book-author">Robert C. Martin</div>
+                                
+                                <div class="book-progress">
+                                    <div class="progress-label">
+                                        <span>Progress</span>
+                                        <span>23%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 23%;"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="book-meta">
+                                    <span>5 notes</span>
+                                    <span>Personal</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div class="screen" id="settingsScreen">
+                <div class="content-header">
+                    <div class="header-top">
+                        <div class="header-title">
+                            <h1>Settings</h1>
+                            <p class="header-subtitle">Customize your experience</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-body">
+                    <div class="today-overview">
+                        <div class="section-header">
+                            <h3 class="section-title">Account</h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" class="form-input" value="Alex Johnson">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-input" value="alex.johnson@university.edu">
+                        </div>
+                        
+                        <button class="btn-accent">Save Changes</button>
+                    </div>
+                    
+                    <div class="today-overview" style="margin-top: 2rem;">
+                        <div class="section-header">
+                            <h3 class="section-title">Preferences</h3>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Default View</label>
+                            <select class="form-input">
+                                <option>Dashboard</option>
+                                <option>Tasks</option>
+                                <option>Calendar</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn-accent">Save Preferences</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal: Add Task -->
+    <div class="modal-overlay" id="addTaskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Task</h2>
+                <p class="modal-subtitle">Create a task to stay organized</p>
+            </div>
+            
+            <form id="taskForm">
+                <div class="form-group">
+                    <label>Task Name</label>
+                    <input type="text" class="form-input" placeholder="e.g., Complete assignment" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Meeting Link (Optional)</label>
+                    <input type="url" class="form-input" placeholder="https://zoom.us/...">
+                </div>
+                
+                <div class="form-group">
+                    <label>Category (Optional)</label>
+                    <input type="text" class="form-input" placeholder="e.g., CS 301">
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('addTask')">Cancel</button>
+                <button class="btn-submit" onclick="submitTask()">Add Task</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Lecture -->
+    <div class="modal-overlay" id="addLectureModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Lecture</h2>
+                <p class="modal-subtitle">Schedule a new lecture</p>
+            </div>
+            
+            <form id="lectureForm">
+                <div class="form-group">
+                    <label>Lecture Name</label>
+                    <input type="text" class="form-input" placeholder="e.g., Advanced Algorithms" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Day of Week</label>
+                    <select class="form-input" required>
+                        <option value="">Select day</option>
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Time</label>
+                    <input type="time" class="form-input" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" class="form-input" placeholder="Room 304 or Zoom link">
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('addLecture')">Cancel</button>
+                <button class="btn-submit" onclick="submitLecture()">Add Lecture</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Book -->
+    <div class="modal-overlay" id="addBookModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Add Book</h2>
+                <p class="modal-subtitle">Track your reading</p>
+            </div>
+            
+            <form id="bookForm">
+                <div class="form-group">
+                    <label>Book Title</label>
+                    <input type="text" class="form-input" placeholder="e.g., Introduction to Algorithms" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Author</label>
+                    <input type="text" class="form-input" placeholder="e.g., Thomas H. Cormen" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Course (Optional)</label>
+                    <input type="text" class="form-input" placeholder="e.g., CS 301">
+                </div>
+                
+                <div class="form-group">
+                    <label>Current Progress (%)</label>
+                    <input type="number" class="form-input" min="0" max="100" value="0">
+                </div>
+            </form>
+            
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal('addBook')">Cancel</button>
+                <button class="btn-submit" onclick="submitBook()">Add Book</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ============================================
+        // 🔥 FIREBASE CONFIGURATION
+        // ============================================
+        // PASTE YOUR FIREBASE CONFIG HERE (from Firebase Console)
+        
+        const firebaseConfig = {
+  apiKey: "AIzaSyDO8rNKfvce7CJUC4o2joBqT_Xw_twfEmI",
+  authDomain: "studiq-1f307.firebaseapp.com",
+  projectId: "studiq-1f307",
+  storageBucket: "studiq-1f307.firebasestorage.app",
+  messagingSenderId: "514129162509",
+  appId: "1:514129162509:web:84ebf852817c491f2ec044"
+};
+
+
+        // Initialize Firebase
+        let app, auth, db, currentUserId = null;
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            console.log('✅ Firebase initialized successfully');
+        } catch (error) {
+            console.error('❌ Firebase initialization error:', error);
+            alert('Firebase setup incomplete. Please add your Firebase config to the HTML file.');
+        }
+
+        // ============================================
+        // APP STATE - Modified for Firebase
+        // ============================================
+        const appState = {
+            user: null,
+            tasks: [],
+            lectures: [],
+            books: [],
+            currentMonth: new Date()
+        };
+
+        let taskIdCounter = 1;
+        let lectureIdCounter = 1;
+        let bookIdCounter = 1;
+
+        // ============================================
+        // FIREBASE DATA LOADING
+        // ============================================
+        
+        async function loadUserData() {
+            if (!currentUserId) return;
+            
+            try {
+                // Load tasks
+                const tasksSnapshot = await db.collection(`users/${currentUserId}/tasks`).get();
+                appState.tasks = tasksSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Load lectures
+                const lecturesSnapshot = await db.collection(`users/${currentUserId}/lectures`).get();
+                appState.lectures = lecturesSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Load books
+                const booksSnapshot = await db.collection(`users/${currentUserId}/books`).get();
+                appState.books = booksSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                console.log('✅ Data loaded:', appState.tasks.length, 'tasks,', appState.lectures.length, 'lectures,', appState.books.length, 'books');
+                renderAll();
+            } catch (error) {
+                console.error('❌ Error loading data:', error);
+            }
+        }
+
+        // Save functions for Firebase
+        async function saveTask(task) {
+            try {
+                if (task.id && task.id.length > 5) {
+                    // Update existing
+                    await db.collection(`users/${currentUserId}/tasks`).doc(task.id).update(task);
+                } else {
+                    // Add new
+                    delete task.id;
+                    const docRef = await db.collection(`users/${currentUserId}/tasks`).add(task);
+                    task.id = docRef.id;
+                }
+            } catch (error) {
+                console.error('❌ Error saving task:', error);
+            }
+        }
+
+        async function saveLecture(lecture) {
+            try {
+                if (lecture.id && lecture.id.length > 5) {
+                    await db.collection(`users/${currentUserId}/lectures`).doc(lecture.id).update(lecture);
+                } else {
+                    delete lecture.id;
+                    const docRef = await db.collection(`users/${currentUserId}/lectures`).add(lecture);
+                    lecture.id = docRef.id;
+                }
+            } catch (error) {
+                console.error('❌ Error saving lecture:', error);
+            }
+        }
+
+        async function saveBook(book) {
+            try {
+                if (book.id && book.id.length > 5) {
+                    await db.collection(`users/${currentUserId}/books`).doc(book.id).update(book);
+                } else {
+                    delete book.id;
+                    const docRef = await db.collection(`users/${currentUserId}/books`).add(book);
+                    book.id = docRef.id;
+                }
+            } catch (error) {
+                console.error('❌ Error saving book:', error);
+            }
+        }
+
+        async function deleteFromFirebase(collection, id) {
+            try {
+                await db.collection(`users/${currentUserId}/${collection}`).doc(id).delete();
+            } catch (error) {
+                console.error(`❌ Error deleting ${collection}:`, error);
+            }
+        }
+
+        // ============================================
+        // FIREBASE AUTHENTICATION
+        // ============================================
+        
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // User signed in
+                currentUserId = user.uid;
+                appState.user = {
+                    name: user.displayName || user.email.split('@')[0],
+                    email: user.email
+                };
+                
+                console.log('✅ User signed in:', user.email);
+                
+                document.getElementById('loginScreen').classList.remove('active');
+                document.getElementById('signupScreen').classList.remove('active');
+                document.getElementById('appContainer').classList.add('active');
+                
+                updateUserProfile();
+                await loadUserData();
+            } else {
+                // User signed out
+                currentUserId = null;
+                console.log('ℹ️  No user signed in');
+            }
+        });
+        
+        // Authentication
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                // onAuthStateChanged will handle the rest
+            } catch (error) {
+                console.error('Login error:', error);
+                alert(error.message || 'Login failed. Please check your email and password.');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+            
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await userCredential.user.updateProfile({ displayName: name });
+                
+                // Create user document
+                await db.collection('users').doc(userCredential.user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // onAuthStateChanged will handle the rest
+            } catch (error) {
+                console.error('Signup error:', error);
+                alert(error.message || 'Signup failed. Please try again.');
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('signupScreen').classList.remove('active');
+            document.getElementById('loginScreen').classList.add('active');
+        }
+
+        function showSignup() {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('signupScreen').classList.add('active');
+        }
+
+        function updateUserProfile() {
+            if (appState.user) {
+                const initials = appState.user.name.split(' ').map(n => n[0]).join('');
+                document.querySelector('.user-avatar').textContent = initials;
+                document.querySelector('.user-name').textContent = appState.user.name;
+                
+                // Update dashboard greeting
+                updateDashboardHeader();
+            }
+        }
+        
+        function updateDashboardHeader() {
+            if (!appState.user) return;
+            
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = 'Good morning';
+            if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+            else if (hour >= 17) greeting = 'Good evening';
+            
+            const dateStr = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            const greetingEl = document.getElementById('dashboardGreeting');
+            const dateEl = document.getElementById('dashboardDate');
+            
+            if (greetingEl) greetingEl.textContent = `${greeting}, ${appState.user.name.split(' ')[0]}`;
+            if (dateEl) dateEl.textContent = dateStr;
+        }
+
+        // Navigation
+        function showScreen(screenName) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenName + 'Screen').classList.add('active');
+            
+            // Render the screen content
+            if (screenName === 'dashboard') renderDashboard();
+            if (screenName === 'tasks') renderTasks();
+            if (screenName === 'calendar') renderCalendar();
+            if (screenName === 'lectures') renderLectures();
+            if (screenName === 'reading') renderBooks();
+        }
+
+        // Render Functions
+        function renderAll() {
+            renderDashboard();
+            renderTasks();
+            renderCalendar();
+            renderLectures();
+            renderBooks();
+        }
+
+        function renderDashboard() {
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const todayTasks = appState.tasks.filter(t => t.date === todayStr);
+            const completedToday = todayTasks.filter(t => t.completed).length;
+            
+            // Update stats
+            document.querySelector('.stat-value').textContent = todayTasks.length;
+            document.querySelector('.stat-detail').textContent = `${completedToday} completed`;
+            
+            // Render today's tasks
+            const taskList = document.querySelector('#dashboardScreen .task-list');
+            taskList.innerHTML = todayTasks.map(task => createTaskHTML(task)).join('');
+            
+            // Render upcoming lectures
+            const upcomingLectures = appState.lectures.slice(0, 2);
+            const lectureList = document.querySelectorAll('#dashboardScreen .task-list')[1];
+            lectureList.innerHTML = upcomingLectures.map(lecture => `
+                <div class="task-item">
+                    <div class="task-content">
+                        <div class="task-title">${lecture.name}</div>
+                        <div class="task-meta">
+                            <span>${lecture.day}, ${lecture.time}</span>
+                            ${lecture.location.includes('http') ? `<a href="${lecture.location}" class="task-link">Online</a>` : `<span>${lecture.location}</span>`}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function createTaskHTML(task) {
+            return `
+                <div class="task-item ${task.completed ? 'completed' : ''}" data-task-id="${task.id}">
+                    <div class="task-checkbox ${task.completed ? 'checked' : ''}" onclick="toggleTask(${task.id})"></div>
+                    <div class="task-content">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-meta">
+                            ${task.time ? `<span>Due: ${formatTime(task.time)}</span>` : ''}
+                            ${task.category ? `<span>${task.category}</span>` : ''}
+                            ${task.link ? `<a href="${task.link}" class="task-link" target="_blank">Meeting Link</a>` : ''}
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-btn" onclick="editTask(${task.id})">Edit</button>
+                        <button class="task-btn" onclick="deleteTask(${task.id})">Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatTime(time) {
+            if (!time) return '';
+            const [hours, minutes] = time.split(':');
+            const h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const displayHour = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function renderTasks() {
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            
+            const todayStr = today.toISOString().split('T')[0];
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            const todayTasks = appState.tasks.filter(t => t.date === todayStr);
+            const tomorrowTasks = appState.tasks.filter(t => t.date === tomorrowStr);
+            
+            const taskLists = document.querySelectorAll('#tasksScreen .task-list');
+            if (taskLists[0]) {
+                taskLists[0].innerHTML = todayTasks.length > 0 ? 
+                    todayTasks.map(task => createTaskHTML(task)).join('') :
+                    '<div class="empty-state"><p>No tasks for today</p></div>';
+            }
+            
+            if (taskLists[1]) {
+                taskLists[1].innerHTML = tomorrowTasks.length > 0 ? 
+                    tomorrowTasks.map(task => createTaskHTML(task)).join('') :
+                    '<div class="empty-state"><p>No tasks for tomorrow</p></div>';
+            }
+        }
+
+        function renderCalendar() {
+            const year = appState.currentMonth.getFullYear();
+            const month = appState.currentMonth.getMonth();
+            
+            document.querySelector('.calendar-month').textContent = 
+                new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            const calendarDays = document.querySelector('.calendar-days');
+            calendarDays.innerHTML = '';
+            
+            // Add empty cells for days before the first day
+            const startDay = firstDay === 0 ? 6 : firstDay - 1;
+            for (let i = 0; i < startDay; i++) {
+                calendarDays.innerHTML += '<div class="calendar-day"></div>';
+            }
+            
+            // Add days
+            const currentDate = new Date();
+            const isCurrentMonth = year === currentDate.getFullYear() && month === currentDate.getMonth();
+            const currentDay = currentDate.getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayTasks = appState.tasks.filter(t => t.date === dateStr);
+                const isToday = isCurrentMonth && day === currentDay;
+                const hasEvents = dayTasks.length > 0;
+                
+                let eventsHTML = '';
+                if (hasEvents) {
+                    eventsHTML = '<div class="day-events">';
+                    dayTasks.slice(0, 3).forEach(task => {
+                        eventsHTML += '<div class="day-event-dot task"></div>';
+                    });
+                    eventsHTML += '</div>';
+                }
+                
+                calendarDays.innerHTML += `
+                    <div class="calendar-day ${isToday ? 'today' : ''} ${hasEvents ? 'has-events' : ''}">
+                        <div class="day-number">${day}</div>
+                        ${eventsHTML}
+                    </div>
+                `;
+            }
+        }
+
+        function renderLectures() {
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            const times = ['9:00', '10:00', '11:00', '14:00', '15:00'];
+            
+            const grid = document.querySelector('.timetable-grid');
+            const gridItems = grid.querySelectorAll('.timetable-slot');
+            
+            gridItems.forEach(slot => slot.innerHTML = '');
+            
+            appState.lectures.forEach(lecture => {
+                const dayIndex = days.indexOf(lecture.day);
+                const timeIndex = times.indexOf(lecture.time);
+                
+                if (dayIndex >= 0 && timeIndex >= 0) {
+                    const slotIndex = (timeIndex + 1) * 6 + dayIndex + 1;
+                    const slot = gridItems[slotIndex - 6];
+                    
+                    if (slot) {
+                        const colorMap = {
+                            coral: 'linear-gradient(135deg, var(--accent-coral), #E09578)',
+                            blue: 'linear-gradient(135deg, var(--accent-blue), #6D8EAA)',
+                            green: 'linear-gradient(135deg, var(--accent-green), #8AAC86)'
+                        };
+                        
+                        slot.innerHTML = `
+                            <div class="lecture-card" style="background: ${colorMap[lecture.color] || colorMap.coral}">
+                                <div class="lecture-name">${lecture.name}</div>
+                                <div class="lecture-location">${lecture.location}</div>
+                            </div>
+                        `;
+                    }
+                }
+            });
+        }
+
+        function renderBooks() {
+            const grid = document.querySelector('.books-grid');
+            const gradientMap = {
+                'blue-coral': 'linear-gradient(135deg, var(--accent-blue), var(--accent-coral))',
+                'green-yellow': 'linear-gradient(135deg, var(--accent-green), var(--accent-yellow))',
+                'yellow-coral': 'linear-gradient(135deg, var(--accent-yellow), var(--accent-coral))'
+            };
+            
+            grid.innerHTML = appState.books.map(book => `
+                <div class="book-card">
+                    <div class="book-cover" style="background: ${gradientMap[book.gradient]}">
+                        ${book.title}
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        
+                        <div class="book-progress">
+                            <div class="progress-label">
+                                <span>Progress</span>
+                                <span>${book.progress}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${book.progress}%;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="book-meta">
+                            <span>${book.notes} notes</span>
+                            <span>${book.course}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Task Management
+        async function toggleTask(taskId) {
+            const task = appState.tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                await saveTask(task);
+                renderAll();
+            }
+        }
+
+        async function deleteTask(taskId) {
+            if (confirm('Are you sure you want to delete this task?')) {
+                appState.tasks = appState.tasks.filter(t => t.id !== taskId);
+                await deleteFromFirebase('tasks', taskId);
+                renderAll();
+            }
+        }
+
+        function editTask(taskId) {
+            const task = appState.tasks.find(t => t.id === taskId);
+            if (task) {
+                // Populate modal with task data
+                const form = document.querySelector('#taskForm');
+                form.elements[0].value = task.title;
+                form.elements[1].value = task.date;
+                form.elements[2].value = task.link;
+                form.elements[3].value = task.category;
+                
+                // Store task id for updating
+                form.dataset.editId = taskId;
+                
+                openModal('addTask');
+            }
+        }
+
+        // Modal Management
+        function openModal(modalType) {
+            document.getElementById(modalType + 'Modal').classList.add('active');
+        }
+
+        function closeModal(modalType) {
+            document.getElementById(modalType + 'Modal').classList.remove('active');
+            
+            // Clear forms
+            if (modalType === 'addTask') {
+                const form = document.querySelector('#taskForm');
+                form.reset();
+                delete form.dataset.editId;
+            } else if (modalType === 'addLecture') {
+                document.querySelector('#lectureForm').reset();
+            } else if (modalType === 'addBook') {
+                document.querySelector('#bookForm').reset();
+            }
+        }
+
+        async function submitTask() {
+            const form = document.querySelector('#taskForm');
+            const title = form.elements[0].value;
+            const date = form.elements[1].value;
+            const link = form.elements[2].value;
+            const category = form.elements[3].value;
+            
+            if (!title || !date) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (form.dataset.editId) {
+                // Update existing task
+                const task = appState.tasks.find(t => t.id === form.dataset.editId);
+                if (task) {
+                    task.title = title;
+                    task.date = date;
+                    task.link = link;
+                    task.category = category;
+                    await saveTask(task);
+                }
+            } else {
+                // Add new task
+                const newTask = {
+                    id: Date.now().toString(),
+                    title,
+                    date,
+                    time: '',
+                    completed: false,
+                    link,
+                    category
+                };
+                appState.tasks.push(newTask);
+                await saveTask(newTask);
+            }
+            
+            renderAll();
+            closeModal('addTask');
+        }
+
+        async function submitLecture() {
+            const form = document.querySelector('#lectureForm');
+            const name = form.elements[0].value;
+            const day = form.elements[1].value;
+            const time = form.elements[2].value;
+            const location = form.elements[3].value;
+            
+            if (!name || !day || !time || !location) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const colors = ['coral', 'blue', 'green'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            const newLecture = {
+                id: Date.now().toString(),
+                name,
+                day,
+                time: time.substring(0, 5),
+                location,
+                color: randomColor
+            };
+            
+            appState.lectures.push(newLecture);
+            await saveLecture(newLecture);
+            
+            renderLectures();
+            closeModal('addLecture');
+        }
+
+        async function submitBook() {
+            const form = document.querySelector('#bookForm');
+            const title = form.elements[0].value;
+            const author = form.elements[1].value;
+            const course = form.elements[2].value || 'Personal';
+            const progress = parseInt(form.elements[3].value) || 0;
+            
+            if (!title || !author) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            const gradients = ['blue-coral', 'green-yellow', 'yellow-coral'];
+            const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+            
+            const newBook = {
+                id: Date.now().toString(),
+                title,
+                author,
+                progress,
+                notes: 0,
+                course,
+                gradient: randomGradient
+            };
+            
+            appState.books.push(newBook);
+            await saveBook(newBook);
+            
+            renderBooks();
+            closeModal('addBook');
+        }
+
+        // Calendar Navigation
+        function changeMonth(direction) {
+            const currentMonth = appState.currentMonth.getMonth();
+            const currentYear = appState.currentMonth.getFullYear();
+            appState.currentMonth = new Date(currentYear, currentMonth + direction, 1);
+            renderCalendar();
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize calendar navigation
+        setTimeout(() => {
+            const navButtons = document.querySelectorAll('.calendar-nav .btn-secondary');
+            if (navButtons[0]) navButtons[0].onclick = () => changeMonth(-1);
+            if (navButtons[1]) navButtons[1].onclick = () => changeMonth(1);
+        }, 100);
+    </script>
+</body>
+</html>
